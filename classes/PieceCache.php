@@ -429,7 +429,7 @@ class PieceCache {
     }
 
     // Current memory usage is a baseline
-    $remaining -= memory_get_usage();
+    $remaining = $limit - memory_get_usage();
 
     // Only use 2/3 memory so PHP always has some available
     $remaining = (int)($remaining * 0.6667);
@@ -437,8 +437,12 @@ class PieceCache {
     // Calculate piece count with respect to PHP bloat
     $count = (int)($remaining / ($pieceSize * 1.333));
 
-    if ($count <= 0) {
-      throw new Exception("Not enough memory for even a single piece ($limit)");
+    try {
+        if ($count <= 0) {
+            throw new Exception("Not enough memory for even a single piece ($limit)");
+        }
+    } catch (Exception $e) {
+        echo 'Please increase PHP memory limit and try again';
     }
 
     if ($count < 3) {
